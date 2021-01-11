@@ -21,52 +21,6 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
     return;
 }
 
-// Convert image to sepia
-void sepia(int height, int width, RGBTRIPLE image[height][width])
-{
-    int sepiaRed = 0;
-    int sepiaGreen = 0;
-    int sepiaBlue = 0;
-
-    for (int i = 0; i < height; i += 1)
-    {
-        for (int j = 0; j < width; j += 1)
-        {
-            sepiaRed = round(0.393 * image[i][j].rgbtRed + 0.769 * image[i][j].rgbtGreen + 0.189 * image[i][j].rgbtBlue);
-            sepiaGreen = round(0.349 * image[i][j].rgbtRed + 0.686 * image[i][j].rgbtGreen + 0.168 * image[i][j].rgbtBlue);
-            sepiaBlue = round(0.272 * image[i][j].rgbtRed + 0.534 * image[i][j].rgbtGreen + 0.131 * image[i][j].rgbtBlue);
-
-            if (sepiaRed > 255)
-            {
-                image[i][j].rgbtRed = 255;
-            }
-            else
-            {
-                image[i][j].rgbtRed = sepiaRed;
-            }
-
-            if (sepiaGreen > 255)
-            {
-                image[i][j].rgbtGreen = 255;
-            }
-            else
-            {
-                image[i][j].rgbtGreen = sepiaGreen;
-            }
-
-            if (sepiaBlue > 255)
-            {
-                image[i][j].rgbtBlue = 255;
-            }
-            else
-            {
-                image[i][j].rgbtBlue = sepiaBlue;
-            }
-        }
-    }
-    return;
-}
-
 // Reflect image horizontally
 void reflect(int height, int width, RGBTRIPLE image[height][width])
 {
@@ -218,6 +172,342 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
             }
         }
 
+    }
+
+    for (int i = 0; i < height ; i += 1)
+    {
+        for (int j = 0; j < width; j += 1)
+        {
+            image[i][j].rgbtRed = temp[i][j].rgbtRed;
+            image[i][j].rgbtGreen = temp[i][j].rgbtGreen;
+            image[i][j].rgbtBlue = temp[i][j].rgbtBlue;
+        }
+    }
+
+    return ;
+}
+
+
+// Detect edges
+void edges(int height, int width, RGBTRIPLE image[height][width])
+{
+
+    long double average_RedX  = 0;
+    long double average_RedY  = 0;
+    long double average_GreenX = 0;
+    long double average_GreenY = 0;
+    long double average_BlueX = 0;
+    long double average_BlueY = 0;
+
+    RGBTRIPLE temp[height][width];
+
+    for (int i = 0; i < height; i += 1)
+    {
+        if (i == 0)
+        {
+            for (int j = 0; j < width; j += 1)
+            {
+                if (j == 0)
+                {
+
+                    average_RedX = round(image[i][j+1].rgbtRed*2.0  + image[i+1][j+1].rgbtRed*1);
+                    average_RedY = round(image[i+1][j].rgbtRed*2.0  + image[i+1][j+1].rgbtRed*1);
+                    long double final_red = round(sqrtl(pow(average_RedX,2) + pow(average_RedY,2)));
+                    average_GreenX = round(image[i][j+1].rgbtGreen*2.0  + image[i+1][j+1].rgbtGreen*1);
+                    average_GreenY = round(image[i+1][j].rgbtGreen*2.0  + image[i+1][j+1].rgbtGreen*1);
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i][j+1].rgbtBlue*(2.0)  + image[i+1][j+1].rgbtBlue*(1));
+                    average_BlueY = round(image[i+1][j].rgbtBlue*(2.0)  + image[i+1][j+1].rgbtBlue*(1));
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2.0) + pow(average_BlueY,2.0)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue = final_blue;
+                }
+                else if (j == (width - 1))
+                {
+                    average_RedX = round(image[i][j-1].rgbtRed*(-2)  + image[i+1][j-1].rgbtRed*(-1));
+                    average_RedY = round(image[i+1][j-1].rgbtRed*1  + image[i+1][j].rgbtRed*2);
+                    long double final_red = round(sqrtl(pow(average_RedX,2) + pow(average_RedY,2)));
+                    average_GreenX = round(image[i][j-1].rgbtGreen*(-2)  + image[i+1][j-1].rgbtGreen*(-1));
+                    average_GreenY = round(image[i+1][j-1].rgbtGreen*1  + image[i+1][j].rgbtGreen*2);
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i][j-1].rgbtBlue*(-2)  + image[i+1][j-1].rgbtBlue*(-1));
+                    average_BlueY = round(image[i+1][j-1].rgbtBlue*1  + image[i+1][j].rgbtBlue*2);
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2) + pow(average_BlueY,2)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+                }
+
+                else
+                {
+                    average_RedX = round(image[i][j-1].rgbtRed*(-2)  + image[i+1][j-1].rgbtRed*(-1) + image[i][j+1].rgbtRed*2 + image[i+1][j+1].rgbtRed*1);
+                    average_RedY = round(image[i+1][j-1].rgbtRed*1  + image[i+1][j].rgbtRed*2 + image[i+1][j+1].rgbtRed*1);
+                    long double final_red = round(sqrtl(round(pow(average_RedX,2) + pow(average_RedY,2))));
+                    average_GreenX = round(image[i][j-1].rgbtGreen*(-2)  + image[i+1][j-1].rgbtGreen*(-1) + image[i][j+1].rgbtGreen*2 + image[i+1][j+1].rgbtGreen*1);
+                    average_GreenY = round(image[i+1][j-1].rgbtGreen*1  + image[i+1][j].rgbtGreen*2 +image[i+1][j+1].rgbtGreen*1);
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i][j-1].rgbtBlue*(-2.0)  + image[i+1][j-1].rgbtBlue*(-1.0) + image[i][j+1].rgbtBlue*2.0 + image[i+1][j+1].rgbtBlue*1.0);
+                    average_BlueY = round(image[i+1][j-1].rgbtBlue*1.0  + image[i+1][j].rgbtBlue*2.0 + image[i+1][j+1].rgbtBlue*1.0);
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2.0) + pow(average_BlueY,2.0)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+                }
+
+            }
+        }
+        else if (i == (height - 1))
+        {
+            for (int j = 0; j < width; j += 1)
+            {
+                if (j == 0)
+                {
+                    average_RedX = round(image[i-1][j+1].rgbtRed*1  + image[i][j+1].rgbtRed*2);
+                    average_RedY = round(image[i-1][j].rgbtRed*(-2)  + image[i-1][j+1].rgbtRed*(-1));
+                    long double final_red = round(sqrtl(pow(average_RedX,2) + pow(average_RedY,2)));
+                    average_GreenX = round(image[i-1][j+1].rgbtGreen*1  + image[i][j+1].rgbtGreen*2);
+                    average_GreenY = round(image[i-1][j].rgbtGreen*(-2)  + image[i-1][j+1].rgbtGreen*(-1));
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i-1][j+1].rgbtBlue*1  + image[i][j+1].rgbtBlue*2);
+                    average_BlueY = round(image[i-1][j].rgbtBlue*(-2)  + image[i-1][j+1].rgbtBlue*(-1));
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2) + pow(average_BlueY,2)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+
+                }
+                else if (j == (width - 1))
+                {
+                    average_RedX = round(image[i][j-1].rgbtRed*(-2)  + image[i-1][j-1].rgbtRed*(-1));
+                    average_RedY = round(image[i-1][j].rgbtRed*(-2)  + image[i-1][j-1].rgbtRed*(-1));
+                    long double final_red = round(sqrtl(pow(average_RedX,2) + pow(average_RedY,2)));
+                    average_GreenX = round(image[i][j-1].rgbtGreen*(-2)  + image[i-1][j-1].rgbtGreen*(-1));
+                    average_GreenY = round(image[i-1][j].rgbtGreen*(-2)  + image[i-1][j-1].rgbtGreen*(-1));
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i][j-1].rgbtBlue*(-2)  + image[i-1][j-1].rgbtBlue*(-1));
+                    average_BlueY = round(image[i-1][j].rgbtBlue*(-2)  + image[i-1][j-1].rgbtBlue*(-1));
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2) + pow(average_BlueY,2)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+
+                }
+                else
+                {
+                    average_RedX = round(image[i][j-1].rgbtRed*(-2)  + image[i-1][j-1].rgbtRed*(-1) + image[i][j+1].rgbtRed*2 + image[i-1][j+1].rgbtRed*1);
+                    average_RedY = round(image[i-1][j-1].rgbtRed*(-1)  + image[i-1][j].rgbtRed*(-2) + image[i-1][j+1].rgbtRed*(-1));
+                    long double final_red = round(sqrtl(round(pow(average_RedX,2) + pow(average_RedY,2))));
+                    average_GreenX = round(image[i][j-1].rgbtGreen*(-2)  + image[i-1][j-1].rgbtGreen*(-1) + image[i][j+1].rgbtGreen*2 + image[i-1][j+1].rgbtGreen*1);
+                    average_GreenY = round(image[i-1][j-1].rgbtGreen*(-1)  + image[i-1][j].rgbtGreen*(-2) +image[i-1][j+1].rgbtGreen*(-1));
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i][j-1].rgbtBlue*(-2)  + image[i-1][j-1].rgbtBlue*(-1) + image[i][j+1].rgbtBlue*2 + image[i-1][j+1].rgbtBlue*1);
+                    average_BlueY = round(image[i-1][j-1].rgbtBlue*(-1)  + image[i-1][j].rgbtBlue*(-2) + image[i-1][j+1].rgbtBlue*(-1));
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2) + pow(average_BlueY,2)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+                }
+
+            }
+        }
+        else
+        {
+            for (int j = 0; j < width; j += 1)
+            {
+                if (j == 0)
+                {
+                    average_RedX = round(image[i-1][j+1].rgbtRed*(1)  + image[i][j+1].rgbtRed*(2) + image[i+1][j+1].rgbtRed*1);
+                    average_RedY = round(image[i-1][j].rgbtRed*(-2)  + image[i-1][j+1].rgbtRed*(-1) + image[i+1][j].rgbtRed*(2) + image[i+1][j+1].rgbtRed*(1));
+                    long double final_red = round(sqrtl(round(pow(average_RedX,2) + pow(average_RedY,2))));
+                    average_GreenX = round(image[i-1][j+1].rgbtGreen*(1)  + image[i][j+1].rgbtGreen*(2) + image[i+1][j+1].rgbtGreen*1);
+                    average_GreenY = round(image[i-1][j].rgbtGreen*(-2)  + image[i-1][j+1].rgbtGreen*(-1) +image[i+1][j].rgbtGreen*(2) + image[i+1][j+1].rgbtGreen*(1));
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i-1][j+1].rgbtBlue*(1)  + image[i][j+1].rgbtBlue*(2) + image[i+1][j+1].rgbtBlue*1);
+                    average_BlueY = round(image[i-1][j].rgbtBlue*(-2)  + image[i-1][j+1].rgbtBlue*(-1) + image[i+1][j].rgbtBlue*(2) + image[i+1][j+1].rgbtBlue*(1));
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2) + pow(average_BlueY,2)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+
+                }
+                else if (j == (width - 1))
+                {
+                    average_RedX = round(image[i-1][j-1].rgbtRed*(-1)  + image[i][j-1].rgbtRed*(-2) + image[i+1][j-1].rgbtRed*(-1));
+                    average_RedY = round(image[i-1][j-1].rgbtRed*(-1)  + image[i-1][j].rgbtRed*(-2) + image[i+1][j-1].rgbtRed*(1) + image[i+1][j].rgbtRed*(2));
+                    long double final_red = round(sqrtl(round(pow(average_RedX,2) + pow(average_RedY,2))));
+                    average_GreenX = round(image[i-1][j-1].rgbtGreen*(-1)  + image[i][j-1].rgbtGreen*(-2) + image[i+1][j-1].rgbtGreen*(-1));
+                    average_GreenY = round(image[i-1][j-1].rgbtGreen*(-1)  + image[i-1][j].rgbtGreen*(-2) +image[i+1][j-1].rgbtGreen*(1) + image[i+1][j].rgbtGreen*(2));
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i-1][j-1].rgbtBlue*(-1)  + image[i][j-1].rgbtBlue*(-2) + image[i+1][j-1].rgbtBlue*(-1));
+                    average_BlueY = round(image[i-1][j-1].rgbtBlue*(-1)  + image[i-1][j].rgbtBlue*(-2) + image[i+1][j-1].rgbtBlue*(1) + image[i+1][j].rgbtBlue*(2));
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2) + pow(average_BlueY,2)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+                }
+
+                else
+                {
+                    average_RedX = round(image[i-1][j-1].rgbtRed*(-1)  + image[i][j-1].rgbtRed*(-2) + image[i+1][j-1].rgbtRed*(-1) + image[i-1][j+1].rgbtRed*(1)  + image[i][j+1].rgbtRed*(2) + image[i+1][j+1].rgbtRed*(1));
+                    average_RedY = round(image[i-1][j-1].rgbtRed*(-1)  + image[i-1][j].rgbtRed*(-2) + image[i-1][j+1].rgbtRed*(-1) + image[i+1][j-1].rgbtRed*(1)  + image[i+1][j].rgbtRed*(2) + image[i+1][j+1].rgbtRed*(1));
+                    long double final_red = round(sqrtl(round(pow(average_RedX,2) + pow(average_RedY,2))));
+                    average_GreenX = round(image[i-1][j-1].rgbtGreen*(-1)  + image[i][j-1].rgbtGreen*(-2) + image[i+1][j-1].rgbtGreen*(-1) + image[i-1][j+1].rgbtGreen*(1)  + image[i][j+1].rgbtGreen*(2) + image[i+1][j+1].rgbtGreen*(1));
+                    average_GreenY = round(image[i-1][j-1].rgbtGreen*(-1)  + image[i-1][j].rgbtGreen*(-2) + image[i-1][j+1].rgbtGreen*(-1) + image[i+1][j-1].rgbtGreen*(1)  + image[i+1][j].rgbtGreen*(2) + image[i+1][j+1].rgbtGreen*(1));
+                    long double final_green = round(sqrtl(pow(average_GreenX,2) + pow(average_GreenY,2)));
+                    average_BlueX = round(image[i-1][j-1].rgbtBlue*(-1)  + image[i][j-1].rgbtBlue*(-2) + image[i+1][j-1].rgbtBlue*(-1) + image[i-1][j+1].rgbtBlue*(1)  + image[i][j+1].rgbtBlue*(2) + image[i+1][j+1].rgbtBlue*(1));
+                    average_BlueY = round(image[i-1][j-1].rgbtBlue*(-1)  + image[i-1][j].rgbtBlue*(-2) + image[i-1][j+1].rgbtBlue*(-1) + image[i+1][j-1].rgbtBlue*(1)  + image[i+1][j].rgbtBlue*(2) + image[i+1][j+1].rgbtBlue*(1));
+                    long double final_blue = round(sqrtl(pow(average_BlueX,2) + pow(average_BlueY,2)));
+
+                    if (final_blue > 255)
+                    {
+                        final_blue = 255;
+                    }
+
+                    if (final_green > 255)
+                    {
+                        final_green = 255;
+                    }
+
+                    if (final_red > 255)
+                    {
+                        final_red = 255;
+                    }
+
+                    temp[i][j].rgbtRed = final_red;
+                    temp[i][j].rgbtGreen = final_green;
+                    temp[i][j].rgbtBlue= final_blue;
+                }
+            }
+        }
     }
 
     for (int i = 0; i < height ; i += 1)
